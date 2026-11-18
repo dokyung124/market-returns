@@ -39,6 +39,8 @@
     --chip-on: #1B2230;
     --chip-on-ink: #FFFFFF;
     --focus: #2A78D6;
+    --krw-bg: #F1F5FB;
+    --krw-bg-head: #E9EFF8;
     --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
     --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
   }
@@ -59,6 +61,8 @@
       --chip-on: #EDF0F5;
       --chip-on-ink: #161A21;
       --focus: #5C9CF0;
+      --krw-bg: #212938;
+      --krw-bg-head: #252E3F;
       --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
       --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
     }
@@ -146,6 +150,38 @@
   footer { margin-top: 28px; color: var(--ink-3); font-size: 13px; }
   .note { color: var(--ink-3); font-size: 13px; margin: 8px 4px 0; }
 
+
+  .head-actions { display: flex; gap: 8px; }
+  .btn { border: 1px solid var(--rule); background: var(--chip); border-radius: 10px; padding: 7px 13px; font-size: 14px; cursor: pointer; }
+  .btn-primary { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); font-weight: 500; }
+
+  dialog.data-dlg { border: 0; padding: 0; background: var(--page); color: var(--ink); width: min(1180px, 100vw - 32px); height: calc(100dvh - 48px);
+                    max-width: none; max-height: none; border-radius: 16px; box-shadow: 0 20px 60px rgba(10, 20, 40, .3); }
+  dialog.data-dlg[open] { display: flex; flex-direction: column; }
+  dialog.data-dlg::backdrop { background: rgba(10, 16, 28, .45); }
+  @media (max-width: 700px) {
+    dialog.data-dlg { width: 100vw; height: 100dvh; border-radius: 0; margin: 0; }
+  }
+  .dlg-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(14px + env(safe-area-inset-top)) 16px 10px; }
+  .dlg-top h2 { margin: 0; font-size: 18px; }
+  .dlg-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 0 16px 10px; color: var(--ink-2); font-size: 13px; }
+  .dlg-tools .legend { display: inline-flex; align-items: center; gap: 6px; }
+  .dlg-tools .legend i { width: 24px; height: 12px; border-radius: 2px; background: var(--krw-bg-head); }
+  .raw-wrap { flex: 1; overflow: auto; margin: 0 16px calc(16px + env(safe-area-inset-bottom)); background: var(--surface);
+              border: 1px solid var(--rule); border-radius: 12px; -webkit-overflow-scrolling: touch; }
+  table.raw { border-collapse: separate; border-spacing: 0; font-size: 13px; white-space: nowrap; }
+  table.raw th, table.raw td { padding: 6px 12px; text-align: right; border-bottom: 1px solid var(--grid); }
+  table.raw thead th { position: sticky; top: 0; z-index: 2; background: var(--surface); color: var(--ink-2); font-weight: 500;
+                       vertical-align: bottom; border-bottom: 1px solid var(--rule); }
+  table.raw thead th small { display: block; color: var(--ink-3); font-size: 11px; min-height: 15px; }
+  table.raw th.first, table.raw td.first { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--surface);
+                                            border-right: 1px solid var(--rule); font-weight: 500; }
+  table.raw thead th.first { z-index: 3; }
+  table.raw .g-start { border-left: 1px solid var(--rule); }
+  table.raw .krw { background: var(--krw-bg); }
+  table.raw thead th.krw { background: var(--krw-bg-head); }
+  table.raw td.empty { color: var(--ink-3); }
+
   svg text { font-family: inherit; }
   @media (prefers-reduced-motion: no-preference) {
     .line-draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw .7s ease-out forwards; }
@@ -159,6 +195,9 @@
     <div>
       <h1>시장 수익률</h1>
       <p class="period-text" id="periodText">불러오는 중…</p>
+    </div>
+    <div class="head-actions">
+      <button class="btn" id="openData" disabled>데이터 보기</button>
     </div>
   </header>
 
@@ -213,6 +252,22 @@
 
   <footer id="footer"></footer>
 </div>
+
+<dialog class="data-dlg" id="dataDlg" aria-labelledby="dataTitle">
+  <div class="dlg-top">
+    <h2 id="dataTitle">월말 종가 데이터</h2>
+    <button class="btn btn-primary" id="closeData">닫기</button>
+  </div>
+  <div class="dlg-tools">
+    <div class="seg" role="group" aria-label="정렬" id="sortSeg">
+      <button data-sort="desc">최근 달부터</button>
+      <button data-sort="asc">오래된 달부터</button>
+    </div>
+    <button class="btn" id="csvBtn">CSV로 내려받기</button>
+    <span class="legend"><i aria-hidden="true"></i>원화 환산 칸 (현지 가격 × 그달 말 환율)</span>
+  </div>
+  <div class="raw-wrap" id="rawWrap"></div>
+</dialog>
 
 <script>
 // ----------------------------------------------------------------- 종목 설정
@@ -614,6 +669,7 @@ async function start() {
     }
   }
   ingest(rows);
+  $("openData").disabled = !state.months.length;
   if (!state.months.length) { $("chartMsg").hidden = false; $("chartMsg").textContent = "아직 저장된 데이터가 없어요. seed.sql 을 먼저 넣어 주세요."; return; }
 
   const saved = store.get("sel", null);
@@ -628,6 +684,74 @@ async function start() {
   }
   $("footer").textContent ||= `${ymLabel(state.months.at(-1))} 말 데이터까지 들어 있어요. 매월 1일에 지난달 종가가 자동으로 추가돼요.`;
 }
+
+// ----------------------------------------------------------------- 데이터 보기 (엑셀 '지수 Raw Data' 와 같은 열 순서)
+const RAW_COLS = [
+  ["미국", "S&P 500(H)", "SPX"], ["미국", "나스닥(H)", "NASDAQ"], ["미국", "다우 존스(H)", "DJI"], ["미국", "원 달러 환율", "USDKRW"],
+  ["미국", "S&P 500", "SPX", "USDKRW"], ["미국", "나스닥", "NASDAQ", "USDKRW"], ["미국", "다우 존스", "DJI", "USDKRW"],
+  ["한국", "코스피", "KOSPI"], ["한국", "코스닥", "KOSDAQ"],
+  ["중국", "차이나 CSI 300(H)", "CSI300"], ["중국", "차이나 CSI 500(H)", "CSI500"], ["중국", "과창판 STAR50(H)", "STAR50"], ["중국", "원 위안 환율", "CNYKRW"],
+  ["중국", "차이나 CSI 300", "CSI300", "CNYKRW"], ["중국", "차이나 CSI 500", "CSI500", "CNYKRW"], ["중국", "과창판 STAR50", "STAR50", "CNYKRW"],
+  ["홍콩", "항셍 지수(H)", "HSI"], ["홍콩", "항셍 테크(H)", "HSTECH"], ["홍콩", "홍콩 달러 원 환율", "HKDKRW"],
+  ["홍콩", "항셍 지수", "HSI", "HKDKRW"], ["홍콩", "항셍 테크", "HSTECH", "HKDKRW"],
+  ["일본", "닛케이(H)", "N225"], ["일본", "원 엔 환율", "JPYKRW"], ["일본", "닛케이", "N225", "JPYKRW"],
+  ["인도", "인도 니프티 50(H)", "NIFTY50"], ["인도", "원 루피 환율", "INRKRW"], ["인도", "인도 니프티 50", "NIFTY50", "INRKRW"],
+  ["유럽", "유로 스톡스 50(H)", "SX5E"], ["유럽", "원 유로 환율", "EURKRW"], ["유럽", "유로 스톡스 50", "SX5E", "EURKRW"],
+  ["베트남", "베트남 VN (H)", "VNI"], ["베트남", "베트남 동 환율", "VNDKRW"], ["베트남", "베트남 VN", "VNI", "VNDKRW"],
+  ["태국", "태국 SET (H)", "SET"], ["태국", "태국 바트 환율", "THBKRW"], ["태국", "태국 SET", "SET", "THBKRW"],
+  ["코인", "비트코인(H)", "BTC"], ["코인", "이더리움(H)", "ETH"], ["코인", "리플(H)", "XRP"], ["코인", "솔라나(H)", "SOL"],
+  ["코인", "비트코인", "BTC", "USDKRW"], ["코인", "이더리움", "ETH", "USDKRW"], ["코인", "리플", "XRP", "USDKRW"], ["코인", "솔라나", "SOL", "USDKRW"],
+  ["원자재", "국제금", "GOLD"], ["원자재", "국내금", "KRXGOLD"], ["원자재", "은", "SILVER"], ["원자재", "구리", "COPPER"],
+  ["테슬라", "테슬라(H)", "TSLA"], ["테슬라", "테슬라", "TSLA", "USDKRW"],
+].map(([g, h, code, fx]) => ({ g, h, code, fx }));
+let rawSort = store.get("rawSort", "desc");
+
+function rawValue(col, ym) {
+  const v = state.data[col.code]?.[ym];
+  if (v == null) return null;
+  if (!col.fx) return v;
+  const f = state.data[col.fx]?.[ym];
+  return f == null ? null : v * f;
+}
+const fmtRaw = v => v == null ? "–" : v.toLocaleString("ko-KR", Math.abs(v) < 1
+  ? { minimumFractionDigits: 4, maximumFractionDigits: 6 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const ymSlash = ym => `${ym.slice(0, 4)}/${+ym.slice(5)}`;
+
+function drawRawTable() {
+  for (const b of $("sortSeg").children) b.setAttribute("aria-pressed", b.dataset.sort === rawSort);
+  const months = rawSort === "desc" ? [...state.months].reverse() : state.months;
+  const gStart = RAW_COLS.map((c, i) => i === 0 || RAW_COLS[i - 1].g !== c.g);
+  const thead = el("thead", {}, el("tr", {},
+    el("th", { class: "first", scope: "col" }, el("small", {}, ""), "일자"),
+    ...RAW_COLS.map((c, i) => el("th", { scope: "col", class: [c.fx ? "krw" : "", gStart[i] ? "g-start" : ""].join(" ").trim() },
+      el("small", {}, gStart[i] ? c.g : ""), c.h))));
+  const tbody = el("tbody", {}, ...months.map(ym => el("tr", {},
+    el("td", { class: "first" }, ymSlash(ym)),
+    ...RAW_COLS.map((c, i) => {
+      const v = rawValue(c, ym);
+      const cls = [c.fx ? "krw" : "", gStart[i] ? "g-start" : "", v == null ? "empty" : ""].join(" ").trim();
+      return el("td", cls ? { class: cls } : {}, fmtRaw(v));
+    }))));
+  $("rawWrap").replaceChildren(el("table", { class: "raw" }, thead, tbody));
+}
+
+function downloadCsv() {
+  const esc = t => /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  const lines = [["일자", ...RAW_COLS.map(c => c.h)].map(esc).join(",")];
+  for (const ym of state.months) {
+    lines.push([ymSlash(ym), ...RAW_COLS.map(c => { const v = rawValue(c, ym); return v == null ? "" : String(+v.toFixed(8)); })].join(","));
+  }
+  const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: `지수_Raw_Data_${state.months.at(-1).replace("-", "")}.csv` });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+$("openData").addEventListener("click", () => { drawRawTable(); $("dataDlg").showModal(); $("rawWrap").scrollTo(0, 0); });
+$("closeData").addEventListener("click", () => $("dataDlg").close());
+$("dataDlg").addEventListener("click", e => { if (e.target === $("dataDlg")) $("dataDlg").close(); });
+$("sortSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; rawSort = b.dataset.sort; store.set("rawSort", rawSort); drawRawTable(); });
+$("csvBtn").addEventListener("click", downloadCsv);
 
 $("quick").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setQuick(b.dataset.m); });
 $("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { state.mode = b.dataset.mode; store.set("mode", state.mode); render(false); } });

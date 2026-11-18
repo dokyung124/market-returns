@@ -1,0 +1,56 @@
+name: 월말 종가 자동 입력
+
+on:
+  schedule:
+    - cron: "5 1 1-5 * *"   # 매월 1~5일 10:05 (한국 시간). 1일에 채우고, 못 채운 칸은 5일까지 재시도
+    - cron: "17 3 * * 1"    # 매주 월요일 12:17: 빈 칸 확인 겸 Supabase 가 잠들지 않게 깨우기
+  workflow_dispatch:        # Actions 탭에서 직접 실행
+    inputs:
+      from:
+        description: "시작 달 (예: 2026-09). 비우면 자동"
+        required: false
+      to:
+        description: "끝 달 (예: 2026-10). 비우면 자동"
+        required: false
+      overwrite:
+        description: "이미 있는 값도 덮어쓰기"
+        type: boolean
+        default: false
+      dry_run:
+        description: "받아오기만 하고 저장 안 함 (테스트)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r fetcher/requirements.txt
+      - name: 종가 받아와서 Supabase 에 저장
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          ARGS=""
+          [ -n "${{ inputs.from }}" ] && ARGS="$ARGS --from ${{ inputs.from }}"
+          [ -n "${{ inputs.to }}" ] && ARGS="$ARGS --to ${{ inputs.to }}"
+          [ "${{ inputs.overwrite }}" = "true" ] && ARGS="$ARGS --overwrite"
+          [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
+          python fetcher/fetch_to_supabase.py $ARGS
+      - name: 실행 기록 남기기 (60일 넘게 활동이 없으면 GitHub 가 예약 실행을 멈추기 때문)
+        if: always()
+        run: |
+          [ -f fetcher/last_run.json ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add fetcher/last_run.json
+          git commit -m "월말 종가 실행 기록" || exit 0
+          git push

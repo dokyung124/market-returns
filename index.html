@@ -182,6 +182,58 @@
   table.raw thead th.krw { background: var(--krw-bg-head); }
   table.raw td.empty { color: var(--ink-3); }
 
+
+  .mine-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; margin: 18px 0 14px; }
+  #acctSeg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  #acctSeg::-webkit-scrollbar { display: none; }
+  #acctSeg button { white-space: nowrap; flex: none; }
+  .who { color: var(--ink-3); font-size: 13px; display: flex; gap: 10px; align-items: center; }
+  .summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+             border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+  @media (min-width: 760px) { .summary { grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)); } }
+  .summary > div { background: var(--surface); padding: 12px 14px; }
+  .summary .lbl { color: var(--ink-2); font-size: 13px; }
+  .summary .val { font-size: 18px; font-weight: 600; margin-top: 2px; line-height: 1.3; }
+  .summary .sub { font-size: 13px; margin-top: 1px; }
+  .summary .main { grid-column: 1 / -1; }
+  @media (min-width: 760px) { .summary .main { grid-column: auto; } }
+  .summary .main .val { font-size: 26px; letter-spacing: -0.01em; }
+  #myChart { display: block; width: 100%; height: 300px; touch-action: pan-y; }
+  @media (min-width: 900px) { #myChart { height: 360px; } }
+  .mine-sec { margin-top: 22px; }
+  .mine-sec h2 { display: flex; justify-content: space-between; align-items: baseline; }
+  .mine-sec h2 span { color: var(--ink-3); font-size: 13px; font-weight: 400; }
+  table.my { border-collapse: separate; border-spacing: 0; font-size: 13px; white-space: nowrap; width: 100%; }
+  table.my th, table.my td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--grid); }
+  table.my th:first-child, table.my td:first-child { text-align: left; position: sticky; left: 0; background: var(--page); }
+  table.my thead th { color: var(--ink-2); font-weight: 500; position: sticky; top: 0; background: var(--page); }
+  table.my .tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 6px; font-size: 11px; color: var(--ink-2); border: 1px solid var(--rule); }
+  table.my button.edit { border: 1px solid var(--rule); background: var(--chip); border-radius: 8px; padding: 2px 8px; font-size: 12px; cursor: pointer; }
+  .empty-note { color: var(--ink-2); font-size: 14px; padding: 14px; border: 1px dashed var(--rule); border-radius: 12px; }
+
+  dialog.small-dlg { border: 1px solid var(--rule); border-radius: 16px; padding: 20px; width: min(380px, 100vw - 32px);
+                     background: var(--surface); color: var(--ink); box-shadow: 0 20px 60px rgba(10, 20, 40, .3); }
+  dialog.small-dlg::backdrop { background: rgba(10, 16, 28, .45); }
+  dialog.small-dlg h2 { margin: 0 0 4px; font-size: 18px; }
+  dialog.small-dlg p.desc { color: var(--ink-2); font-size: 13px; margin: 0 0 14px; }
+  .field { display: block; margin-bottom: 12px; font-size: 13px; color: var(--ink-2); }
+  .field input { display: block; width: 100%; margin-top: 4px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 10px;
+                 background: var(--page); color: var(--ink); font: inherit; font-size: 16px; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+  .err { color: var(--up); font-size: 13px; min-height: 18px; margin: 0 0 6px; }
+
+
+  .cmp-controls { margin: 4px 0 10px; }
+  .cmp-pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .cmp-pick .chips { gap: 6px; }
+  .cmp-add { background: var(--chip); border: 1px dashed var(--rule); border-radius: 999px; padding: 6px 12px; font-size: 14px; color: var(--ink-2); }
+  svg.cmp-chart { display: block; width: 100%; height: 300px; touch-action: pan-y; }
+  @media (min-width: 900px) { svg.cmp-chart { height: 380px; } }
+  .cmp-sub { margin-top: 16px; font-size: 15px; }
+  .cmp-diff { margin-top: 10px; display: grid; gap: 4px; }
+  .cmp-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--grid); font-size: 14px; }
+  .cmp-row b { font-weight: 600; }
+
   svg text { font-family: inherit; }
   @media (prefers-reduced-motion: no-preference) {
     .line-draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw .7s ease-out forwards; }
@@ -198,9 +250,19 @@
     </div>
     <div class="head-actions">
       <button class="btn" id="openData" disabled>데이터 보기</button>
+      <button class="btn" id="mineBtn">내 자산</button>
     </div>
   </header>
 
+  <section id="mine" hidden aria-label="내 자산">
+    <div class="mine-top">
+      <div class="seg" role="group" aria-label="계좌" id="acctSeg"></div>
+      <div class="who"><span id="whoEmail"></span><button class="clear" id="logoutBtn">로그아웃</button></div>
+    </div>
+    <div id="mineBody"></div>
+  </section>
+
+  <div id="marketView">
   <div class="controls">
     <div class="seg" role="group" aria-label="기간" id="quick">
       <button data-m="6">6개월</button>
@@ -250,8 +312,38 @@
     </aside>
   </div>
 
+  </div>
   <footer id="footer"></footer>
 </div>
+
+<dialog class="small-dlg" id="loginDlg" aria-labelledby="loginTitle">
+  <form id="loginForm" method="dialog">
+    <h2 id="loginTitle">내 자산 로그인</h2>
+    <p class="desc">등록된 계정만 볼 수 있어요.</p>
+    <label class="field">이메일<input type="email" id="loginEmail" autocomplete="username" required></label>
+    <label class="field">비밀번호<input type="password" id="loginPw" autocomplete="current-password" required></label>
+    <p class="err" id="loginErr" role="alert"></p>
+    <div class="dlg-actions">
+      <button class="btn" type="button" id="loginCancel">취소</button>
+      <button class="btn btn-primary" type="submit" id="loginSubmit">로그인</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="small-dlg" id="editDlg" aria-labelledby="editTitle">
+  <form id="editForm" method="dialog">
+    <h2 id="editTitle">기록 고치기</h2>
+    <p class="desc" id="editDesc"></p>
+    <label class="field">계좌 총액 (원)<input inputmode="numeric" id="edTotal" required></label>
+    <label class="field">입금액 (원)<input inputmode="numeric" id="edDeposit" required></label>
+    <label class="field">배당금 (원)<input inputmode="numeric" id="edDividend" required></label>
+    <p class="err" id="editErr" role="alert"></p>
+    <div class="dlg-actions">
+      <button class="btn" type="button" id="editCancel">취소</button>
+      <button class="btn btn-primary" type="submit">저장</button>
+    </div>
+  </form>
+</dialog>
 
 <dialog class="data-dlg" id="dataDlg" aria-labelledby="dataTitle">
   <div class="dlg-top">
@@ -375,10 +467,10 @@ function ingest(rows) {
 }
 
 // ----------------------------------------------------------------- 계산
-function valueAt(code, ym) {
+function valueAt(code, ym, mode = state.mode) {
   const v = state.data[code]?.[ym];
   if (v == null) return null;
-  if (state.mode === "krw") {
+  if (mode === "krw") {
     const fx = BY_CODE[code]?.fx;
     if (fx) {
       const f = state.data[fx]?.[ym];
@@ -393,19 +485,19 @@ function rangeMonths() {
   return state.months.slice(Math.min(i0, i1), Math.max(i0, i1) + 1);
 }
 
-function series() {
-  const ms = rangeMonths();
-  return state.sel.map(({ code, slot }) => {
+function series() { return seriesFor(state.sel, rangeMonths(), state.mode); }
+function seriesFor(sel, ms, mode) {
+  return sel.map(({ code, slot, color, width }) => {
     let base = null, baseYm = null;
     const pts = ms.map(ym => {
-      const v = valueAt(code, ym);
+      const v = valueAt(code, ym, mode);
       if (v == null) return null;
       if (base == null) { base = v; baseYm = ym; }
       return v / base - 1;
     });
     let last = null;
     for (let i = pts.length - 1; i >= 0; i--) if (pts[i] != null) { last = pts[i]; break; }
-    return { code, slot, name: BY_CODE[code].name, pts, last, baseYm, lateStart: baseYm && baseYm !== ms[0] };
+    return { code, slot, color, width, name: BY_CODE[code].name, pts, last, baseYm, lateStart: baseYm && baseYm !== ms[0] };
   });
 }
 
@@ -422,19 +514,20 @@ function niceTicks(lo, hi, n = 5) {
   return { ticks: t, step };
 }
 
-let chartGeom = null;
-function drawChart(ss, ms, animate) {
-  const svg = $("chart");
+const MAIN_CHART = { svg: () => $("chart"), msg: () => $("chartMsg"), tip: () => $("tip"), geom: null,
+                     empty: () => !state.sel.length ? "오른쪽(아래)에서 비교할 종목을 골라 주세요." : null };
+const lineColor = s => s.color || colorOf(s.slot);
+function drawChart(ss, ms, animate, t = MAIN_CHART) {
+  const svg = t.svg();
   svg.replaceChildren();
   const W = svg.clientWidth, H = svg.clientHeight;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const msg = $("chartMsg");
+  const msg = t.msg();
   const drawable = ss.filter(s => s.pts.some(p => p != null));
   if (!drawable.length || ms.length < 2) {
     msg.hidden = false;
-    msg.textContent = !state.sel.length ? "오른쪽(아래)에서 비교할 종목을 골라 주세요." :
-      ms.length < 2 ? "시작 달과 끝 달을 다르게 골라 주세요." : "고른 기간에 데이터가 없어요.";
-    chartGeom = null;
+    msg.textContent = t.empty?.() || (ms.length < 2 ? "시작 달과 끝 달을 다르게 골라 주세요." : "고른 기간에 데이터가 없어요.");
+    t.geom = null;
     return;
   }
   msg.hidden = true;
@@ -479,14 +572,14 @@ function drawChart(ss, ms, animate) {
       d += `${pen ? "L" : "M"}${X(i).toFixed(1)},${Y(p).toFixed(1)}`;
       pen = true;
     });
-    const path = sv("path", { d, fill: "none", stroke: colorOf(s.slot), "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" });
+    const path = sv("path", { d, fill: "none", stroke: lineColor(s), "stroke-width": s.width || 2, "stroke-linejoin": "round", "stroke-linecap": "round" });
     lines.append(path);
     if (animate) {
       const len = path.getTotalLength ? path.getTotalLength() : 0;
       if (len) { path.style.setProperty("--len", len); path.classList.add("line-draw"); }
     }
     const li = s.pts.findLastIndex(p => p != null);
-    lines.append(sv("circle", { cx: X(li), cy: Y(s.pts[li]), r: 3.5, fill: colorOf(s.slot), stroke: "var(--surface)", "stroke-width": 2 }));
+    lines.append(sv("circle", { cx: X(li), cy: Y(s.pts[li]), r: 3.5, fill: lineColor(s), stroke: "var(--surface)", "stroke-width": 2 }));
   }
   svg.append(lines);
 
@@ -517,25 +610,25 @@ function drawChart(ss, ms, animate) {
   const cross = sv("line", { y1: padT, y2: padT + ih, stroke: "var(--ink-3)", "stroke-width": 1, "stroke-dasharray": "3 3", visibility: "hidden" });
   const dots = sv("g", { visibility: "hidden" });
   svg.append(cross, dots);
-  chartGeom = { ss: drawable, ms, X, Y, padL, iw, cross, dots, W };
+  t.geom = { ss: drawable, ms, X, Y, padL, iw, cross, dots, W };
 }
 
-function showTip(clientX) {
-  if (!chartGeom) return;
-  const { ss, ms, X, Y, padL, iw, cross, dots, W } = chartGeom;
-  const box = $("chart").getBoundingClientRect();
+function showTip(clientX, t = MAIN_CHART) {
+  if (!t.geom) return;
+  const { ss, ms, X, Y, padL, iw, cross, dots, W } = t.geom;
+  const box = t.svg().getBoundingClientRect();
   const x = clientX - box.left;
   const i = Math.max(0, Math.min(ms.length - 1, Math.round(((x - padL) / iw) * (ms.length - 1))));
   const cx = X(i);
   cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.setAttribute("visibility", "visible");
   dots.replaceChildren(); dots.setAttribute("visibility", "visible");
   const rows = ss.map(s => ({ s, v: s.pts[i] })).filter(r => r.v != null).sort((a, b) => b.v - a.v);
-  for (const { s, v } of rows) dots.append(sv("circle", { cx, cy: Y(v), r: 4, fill: colorOf(s.slot), stroke: "var(--surface)", "stroke-width": 2 }));
-  const tip = $("tip");
+  for (const { s, v } of rows) dots.append(sv("circle", { cx, cy: Y(v), r: 4, fill: lineColor(s), stroke: "var(--surface)", "stroke-width": 2 }));
+  const tip = t.tip();
   tip.replaceChildren(
     el("div", { class: "t-date" }, i === 0 ? `${ymLabel(ms[i])} (기준)` : ymLabel(ms[i])),
     ...rows.map(({ s, v }) => el("div", { class: "t-row" },
-      el("span", { class: "t-name" }, el("i", { class: "sw", style: { "--c": colorOf(s.slot) } }), s.name),
+      el("span", { class: "t-name" }, el("i", { class: "sw", style: { "--c": lineColor(s) } }), s.name),
       el("b", { class: signCls(v), style: { fontWeight: 500 } }, pct(v)))),
   );
   tip.hidden = false;
@@ -544,14 +637,13 @@ function showTip(clientX) {
   tip.style.left = `${Math.max(4, left) + 4}px`;
   tip.style.top = `16px`;
 }
-function hideTip() {
-  $("tip").hidden = true;
-  if (chartGeom) { chartGeom.cross.setAttribute("visibility", "hidden"); chartGeom.dots.setAttribute("visibility", "hidden"); }
+function hideTip(t = MAIN_CHART) {
+  t.tip().hidden = true;
+  if (t.geom) { t.geom.cross.setAttribute("visibility", "hidden"); t.geom.dots.setAttribute("visibility", "hidden"); }
 }
 
 // ----------------------------------------------------------------- 순위·표·선택칩
-function drawRanking(ss) {
-  const list = $("rankList");
+function drawRanking(ss, list = $("rankList")) {
   const rows = ss.filter(s => s.last != null).sort((a, b) => b.last - a.last);
   if (!rows.length) { list.replaceChildren(el("p", { class: "note", style: { margin: 0 } }, "고른 종목이 없어요.")); return; }
   const maxAbs = Math.max(...rows.map(r => Math.abs(r.last)), 0.0001);
@@ -561,7 +653,7 @@ function drawRanking(ss) {
     const name = el("div", { class: "rank-name" }, s.name);
     if (s.lateStart) name.append(el("small", {}, `${ymShort(s.baseYm)}부터 계산`));
     return el("div", { class: "rank-row" },
-      el("i", { class: "sw", style: { "--c": colorOf(s.slot) } }),
+      el("i", { class: "sw", style: { "--c": lineColor(s) } }),
       name,
       el("div", { class: "bar", "aria-hidden": "true" }, bar),
       el("div", { class: `rank-val ${signCls(s.last)}` }, pct(s.last)));
@@ -672,6 +764,7 @@ async function start() {
   $("openData").disabled = !state.months.length;
   if (!state.months.length) { $("chartMsg").hidden = false; $("chartMsg").textContent = "아직 저장된 데이터가 없어요. seed.sql 을 먼저 넣어 주세요."; return; }
 
+  if (session.get()) { try { await loadMine(); } catch {} }
   const saved = store.get("sel", null);
   state.sel = (saved || DEFAULT_SEL.map((code, i) => ({ code, slot: i + 1 }))).filter(s => BY_CODE[s.code]);
   fillSelects();
@@ -753,14 +846,461 @@ $("dataDlg").addEventListener("click", e => { if (e.target === $("dataDlg")) $("
 $("sortSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; rawSort = b.dataset.sort; store.set("rawSort", rawSort); drawRawTable(); });
 $("csvBtn").addEventListener("click", downloadCsv);
 
+// ----------------------------------------------------------------- 내 자산 (로그인한 본인만)
+const sbConf = () => { const c = window.APP_CONFIG || {}; return { url: (c.SUPABASE_URL || "").replace(/\/$/, ""), key: c.SUPABASE_ANON_KEY }; };
+const session = { get() { return store.get("auth", null); }, set(v) { store.set("auth", v); } };
+
+async function authRequest(grant, body) {
+  const { url, key } = sbConf();
+  const r = await fetch(`${url}/auth/v1/token?grant_type=${grant}`, {
+    method: "POST", headers: { apikey: key, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const m = (j.error_description || j.msg || j.message || "").toLowerCase();
+    throw new Error(m.includes("invalid") ? "이메일이나 비밀번호가 맞지 않아요." : `로그인하지 못했어요 (${r.status}).`);
+  }
+  const s = { access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Date.now() + (j.expires_in || 3600) * 1000,
+              email: j.user?.email || session.get()?.email || "" };
+  session.set(s);
+  return s;
+}
+
+async function api(path, opts = {}) {
+  let s = session.get();
+  if (!s) throw new Error("login");
+  if (Date.now() > s.expires_at - 60000) {
+    try { s = await authRequest("refresh_token", { refresh_token: s.refresh_token }); }
+    catch { session.set(null); throw new Error("login"); }
+  }
+  const { url, key } = sbConf();
+  const r = await fetch(url + path, { ...opts,
+    headers: { apikey: key, Authorization: `Bearer ${s.access_token}`, "Content-Type": "application/json", ...(opts.headers || {}) } });
+  if (r.status === 401) { session.set(null); throw new Error("login"); }
+  if (!r.ok) throw new Error(`서버 응답 ${r.status}`);
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+const my = { accounts: [], monthly: [], holdings: [], sel: store.get("myAcct", "ALL"), loaded: false };
+const ALL_ID = "ALL";
+
+const fmtWon = v => v == null ? "–" : `${Math.round(v).toLocaleString("ko-KR")}`;
+function fmtKrw(v) {                     // 1억 1,958만 원
+  if (v == null || !isFinite(v)) return "–";
+  const sign = v < 0 ? "−" : "", a = Math.abs(v);
+  const eok = Math.floor(a / 1e8), man = Math.round((a - eok * 1e8) / 1e4);
+  if (eok && man) return `${sign}${eok}억 ${man.toLocaleString("ko-KR")}만 원`;
+  if (eok) return `${sign}${eok}억 원`;
+  return `${sign}${man.toLocaleString("ko-KR")}만 원`;
+}
+const fmtAxisKrw = v => Math.abs(v) >= 1e8 ? `${+(v / 1e8).toFixed(2)}억` : `${Math.round(v / 1e4).toLocaleString("ko-KR")}만`;
+const signedKrw = v => v == null ? "–" : `${v > 0 ? "+" : ""}${fmtKrw(v)}`;
+const signedWon = v => v == null ? "–" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(Math.round(v)).toLocaleString("ko-KR")}`;
+
+// 엑셀 '○○ 계좌 현황' 과 같은 계산
+//  월 수익 = 계좌총액 − 입금액 − 지난달 총액,  월 수익률 = 월 수익 ÷ (지난달 총액 + 입금액/6)
+//  시간가중 수익률 = (1+월 수익률) 을 차례로 곱한 값 − 1
+function accountRows(id) {
+  let base;
+  if (id === ALL_ID) {
+    const by = {};
+    for (const r of my.monthly) {
+      const m = r.month.slice(0, 7);
+      const o = (by[m] ||= { ym: m, total: 0, deposit: 0, dividend: 0, auto: false });
+      o.total += +r.total; o.deposit += +r.deposit; o.dividend += +r.dividend; o.auto ||= r.deposit_auto;
+    }
+    base = Object.values(by).sort((a, b) => a.ym.localeCompare(b.ym));
+  } else {
+    base = my.monthly.filter(r => r.account_id === id).map(r => ({ ym: r.month.slice(0, 7), total: +r.total, deposit: +r.deposit,
+      dividend: +r.dividend, auto: r.deposit_auto, source: r.source, month: r.month }));
+  }
+  let prev = 0, cumDep = 0, cumProfit = 0, twr = 1, n = 0;
+  return base.map(r => {
+    const profit = r.total - r.deposit - prev;
+    const denom = prev + r.deposit / 6;
+    const rate = denom ? profit / denom : 0;
+    cumDep += r.deposit; cumProfit += profit; twr *= 1 + rate; n += 1;
+    const out = { ...r, profit, rate, cumDep, cumProfit, cumRate: cumDep ? cumProfit / cumDep : null,
+                  twr: twr - 1, twrIndex: twr, annual: Math.pow(twr, 12 / n) - 1 };
+    prev = r.total;
+    return out;
+  });
+}
+
+const prevYm = ym => { const [y, m] = ym.split("-").map(Number); return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`; };
+function addMineToMarket() {
+  for (let i = ASSETS.length - 1; i >= 0; i--) if (ASSETS[i].g === "내 계좌") ASSETS.splice(i, 1);
+  for (const k of Object.keys(state.data)) if (k.startsWith("MY_")) delete state.data[k];
+  if (!my.loaded || !my.accounts.length) return;
+  const ids = [ALL_ID, ...my.accounts.map(a => a.id)];
+  for (const id of ids) {
+    const code = `MY_${id}`;
+    const name = id === ALL_ID ? "내 절세계좌" : `내 ${my.accounts.find(a => a.id === id).name}`;
+    const item = { g: "내 계좌", code, name, fx: null };
+    ASSETS.splice(ids.indexOf(id), 0, item);
+    BY_CODE[code] = item;
+    const rows = accountRows(id);
+    state.data[code] = Object.fromEntries([[prevYm(rows[0].ym), 1], ...rows.map(r => [r.ym, r.twrIndex])]);
+  }
+}
+
+async function loadMine() {
+  const [accounts, monthly, holdings] = await Promise.all([
+    api("/rest/v1/accounts?select=*&order=sort.asc"),
+    api("/rest/v1/account_monthly?select=*&order=month.asc&limit=10000"),
+    api("/rest/v1/holdings_monthly?select=*&order=month.desc,eval_amount.desc&limit=2000"),
+  ]);
+  Object.assign(my, { accounts, monthly, holdings, loaded: true });
+  if (my.sel !== ALL_ID && !accounts.some(a => a.id === my.sel)) my.sel = ALL_ID;
+  addMineToMarket();
+}
+
+function showView(v) {
+  const mine = v === "mine";
+  $("mine").hidden = !mine;
+  $("marketView").hidden = mine;
+  document.querySelector("h1").textContent = mine ? "내 자산" : "시장 수익률";
+  $("mineBtn").textContent = mine ? "시장 수익률" : "내 자산";
+  $("openData").hidden = mine;
+  $("footer").hidden = mine;
+  if (mine) renderMine(); else { $("periodText").hidden = false; render(false); }
+}
+
+async function openMine() {
+  if (!session.get()) { openLogin(); return; }
+  try {
+    if (!my.loaded) { $("periodText").textContent = "내 자산 불러오는 중…"; await loadMine(); }
+    showView("mine");
+  } catch (e) {
+    if (e.message === "login") openLogin();
+    else { showView("mine"); $("mineBody").replaceChildren(el("p", { class: "empty-note" }, `불러오지 못했어요 (${e.message}). 인터넷 연결을 확인해 주세요.`)); }
+  }
+}
+
+function openLogin() {
+  $("loginErr").textContent = "";
+  $("loginEmail").value = session.get()?.email || store.get("lastEmail", "");
+  $("loginPw").value = "";
+  $("loginDlg").showModal();
+}
+
+function renderMine() {
+  const s = session.get();
+  $("whoEmail").textContent = s?.email || "";
+  const tabs = [{ id: ALL_ID, name: "절세계좌 전체" }, ...my.accounts];
+  $("acctSeg").replaceChildren(...tabs.map(t => el("button", { "aria-pressed": t.id === my.sel,
+    onclick: () => { my.sel = t.id; store.set("myAcct", t.id); renderMine(); } }, t.name)));
+
+  const body = $("mineBody");
+  if (!my.accounts.length) {
+    $("periodText").textContent = "";
+    body.replaceChildren(el("p", { class: "empty-note" },
+      "이 계정으로 볼 수 있는 계좌가 없어요. Supabase 에서 make_me_admin.sql 과 계좌 기록 SQL 을 실행했는지 확인해 주세요."));
+    return;
+  }
+  const rows = accountRows(my.sel);
+  if (!rows.length) { body.replaceChildren(el("p", { class: "empty-note" }, "아직 기록이 없어요.")); return; }
+  const last = rows.at(-1);
+  $("periodText").textContent = `${ymLabel(last.ym)} 말 기준이에요. 매월 1일에 지난달 잔고가 자동으로 추가돼요.`;
+
+  const summary = el("div", { class: "summary" },
+    el("div", { class: "main" }, el("div", { class: "lbl" }, "계좌 총액"), el("div", { class: "val" }, fmtKrw(last.total)),
+      el("div", { class: `sub ${signCls(last.profit)}` }, `이번 달 ${signedKrw(last.profit)} (${pct(last.rate)})`)),
+    el("div", {}, el("div", { class: "lbl" }, "누적 입금액"), el("div", { class: "val" }, fmtKrw(last.cumDep))),
+    el("div", {}, el("div", { class: "lbl" }, "누적 수익"), el("div", { class: `val ${signCls(last.cumProfit)}` }, signedKrw(last.cumProfit)),
+      el("div", { class: `sub ${signCls(last.cumRate)}` }, `입금액 대비 ${pct(last.cumRate)}`)),
+    el("div", {}, el("div", { class: "lbl" }, "시간가중 수익률"), el("div", { class: `val ${signCls(last.twr)}` }, pct(last.twr)),
+      el("div", { class: "sub flat" }, `${rows.length}개월`)),
+    el("div", {}, el("div", { class: "lbl" }, "연환산 수익률"), el("div", { class: `val ${signCls(last.annual)}` }, pct(last.annual))),
+  );
+
+  const chartBox = el("div", { class: "chart-box" });
+  const svg = document.createElementNS(NS, "svg");
+  svg.id = "myChart"; svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", `계좌 총액과 누적 입금액 추이. 최근 계좌 총액 ${fmtKrw(last.total)}, 누적 입금액 ${fmtKrw(last.cumDep)}`);
+  const tip = el("div", { class: "tip", hidden: "" });
+  chartBox.append(svg, tip);
+
+  const cmp = cmpSection(rows);
+  body.replaceChildren(summary, chartBox, cmp.sec, holdingsSection(), monthlySection(rows));
+  drawMoneyChart(svg, tip, rows);
+  cmp.draw();
+}
+
+// ----------------------------------------------------------------- 내 자산: 시장과 비교
+const CMP_MAX = 5;
+const cmpState = {
+  sel: store.get("cmpSel", null) || [{ code: "SPX", slot: 2 }, { code: "NASDAQ", slot: 3 }, { code: "KOSPI", slot: 4 }],
+  mode: store.get("cmpMode", "krw"),
+  period: store.get("cmpPeriod", "all"),
+};
+const MY_COLOR = "var(--ink)";
+
+function cmpSection(rows) {
+  const sec = el("section", { class: "mine-sec" });
+  const myCode = `MY_${my.sel}`;
+  const myName = my.sel === ALL_ID ? "내 절세계좌" : `내 ${my.accounts.find(a => a.id === my.sel)?.name || ""}`;
+
+  const draw = () => {
+    cmpState.sel = cmpState.sel.filter(x => BY_CODE[x.code] && !x.code.startsWith("MY_"));
+    const anchor = prevYm(rows[0].ym);
+    const lastCommon = [state.months.at(-1), rows.at(-1).ym].sort()[0];
+    let ms = state.months.filter(ym => ym >= anchor && ym <= lastCommon);
+    if (cmpState.period !== "all") ms = ms.slice(-(+cmpState.period + 1));
+
+    const head = el("h2", {}, "시장과 비교", el("span", {}, ms.length ? `${ymLabel(ms[0])} 말 = 0%` : ""));
+    const periodSeg = el("div", { class: "seg", role: "group", "aria-label": "비교 기간" },
+      ...[["all", "계좌 시작부터"], ["12", "1년"], ["6", "6개월"]].map(([k, t]) => el("button", {
+        "aria-pressed": cmpState.period === k, onclick: () => { cmpState.period = k; store.set("cmpPeriod", k); draw(); } }, t)));
+    const modeSeg = el("div", { class: "seg", role: "group", "aria-label": "통화 기준" },
+      ...[["krw", "원화 환산"], ["local", "현지 통화"]].map(([k, t]) => el("button", {
+        "aria-pressed": cmpState.mode === k, onclick: () => { cmpState.mode = k; store.set("cmpMode", k); draw(); } }, t)));
+
+    // 고른 종목 칩 (누르면 빠짐) + 추가 메뉴
+    const chips = el("div", { class: "chips" },
+      el("span", { class: "chip", "aria-pressed": "true", style: { "--c": MY_COLOR } }, el("span", { class: "dot", "aria-hidden": "true" }), myName),
+      ...cmpState.sel.map(x => el("button", { class: "chip", "aria-pressed": "true", style: { "--c": colorOf(x.slot) },
+        title: "누르면 비교에서 빠져요", onclick: () => { cmpState.sel = cmpState.sel.filter(y => y.code !== x.code); store.set("cmpSel", cmpState.sel); draw(); } },
+        el("span", { class: "dot", "aria-hidden": "true" }), BY_CODE[x.code].name, " ×")));
+    const add = el("select", { class: "cmp-add", "aria-label": "비교할 종목 추가" });
+    add.append(el("option", { value: "" }, cmpState.sel.length >= CMP_MAX ? `${CMP_MAX}개까지 비교할 수 있어요` : "＋ 비교할 종목 추가"));
+    const chosen = new Set(cmpState.sel.map(x => x.code));
+    for (const g of [...new Set(ASSETS.map(a => a.g))].filter(g => g !== "내 계좌")) {
+      const og = el("optgroup", { label: g });
+      for (const a of ASSETS.filter(a => a.g === g && !chosen.has(a.code))) og.append(el("option", { value: a.code }, a.name));
+      if (og.children.length) add.append(og);
+    }
+    add.disabled = cmpState.sel.length >= CMP_MAX;
+    add.onchange = () => {
+      if (!add.value) return;
+      const used = new Set(cmpState.sel.map(x => x.slot));
+      cmpState.sel.push({ code: add.value, slot: [2, 3, 4, 5, 6, 7, 8, 1].find(n => !used.has(n)) });
+      store.set("cmpSel", cmpState.sel);
+      draw();
+    };
+
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "cmp-chart"); svg.setAttribute("role", "img");
+    const msg = el("div", { class: "chart-msg", hidden: "" });
+    const tip = el("div", { class: "tip", hidden: "" });
+    const box = el("div", { class: "chart-box" }, svg, msg, tip);
+    const rank = el("div", {});
+    const diff = el("div", { class: "cmp-diff" });
+    const note = el("p", { class: "note" }, `${myName}은 시간가중 수익률이에요. 매달 넣은 입금액 효과를 빼고 순수하게 굴린 수익률이라 지수와 바로 비교할 수 있어요.`,
+      cmpState.mode === "krw" ? " 해외 지수는 원화로 환산했어요. 절세계좌 ETF 도 원화로 사고팔기 때문에 원화 환산 비교가 더 정확해요." : " 지금은 현지 통화 기준이라 환율 변동이 빠져 있어요.");
+
+    sec.replaceChildren(head, el("div", { class: "controls cmp-controls" }, periodSeg, modeSeg), el("div", { class: "cmp-pick" }, chips, add), box, note,
+      el("h2", { class: "cmp-sub" }, "같은 기간 수익률"), rank, diff);
+
+    const sel = [{ code: myCode, slot: 0, color: MY_COLOR, width: 3 }, ...cmpState.sel];
+    const ss = seriesFor(sel, ms, cmpState.mode);
+    const t = { svg: () => svg, msg: () => msg, tip: () => tip, geom: null, empty: () => ms.length < 2 ? "비교할 기간이 짧아요." : null };
+    drawChart(ss, ms, false, t);
+    svg.addEventListener("pointermove", e => showTip(e.clientX, t));
+    svg.addEventListener("pointerdown", e => showTip(e.clientX, t));
+    svg.addEventListener("pointerleave", () => hideTip(t));
+    svg.setAttribute("aria-label", `${myName}와 시장 수익률 비교. ${ss.filter(x => x.last != null).map(x => `${x.name} ${pct(x.last)}`).join(", ")}`);
+    drawRanking(ss, rank);
+
+    const mine = ss[0];
+    if (mine.last != null) {
+      diff.replaceChildren(...ss.slice(1).filter(x => x.last != null).map(x => {
+        const d = mine.last - x.last;
+        return el("div", { class: "cmp-row" }, el("span", {}, `${x.name}보다`),
+          el("b", { class: signCls(d) }, `${d > 0 ? "+" : d < 0 ? "−" : ""}${Math.abs(d * 100).toFixed(1)}%p ${d >= 0 ? "높아요" : "낮아요"}`));
+      }));
+    }
+  };
+  return { sec, draw };
+}
+
+function addMineCompare() {
+  const code = `MY_${my.sel}`;
+  if (!state.sel.some(s => s.code === code)) {
+    if (state.sel.length >= MAX_SEL) state.sel.pop();
+    const used = new Set(state.sel.map(s => s.slot));
+    state.sel.unshift({ code, slot: [1, 2, 3, 4, 5, 6, 7, 8].find(n => !used.has(n)) });
+    store.set("sel", state.sel);
+  }
+}
+
+function drawMoneyChart(svg, tip, rows) {
+  const W = svg.clientWidth || 600, H = svg.clientHeight || 300;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const series = [
+    { name: "계좌 총액", color: "var(--s1)", vals: rows.map(r => r.total) },
+    { name: "누적 입금액", color: "var(--ink-3)", vals: rows.map(r => r.cumDep), dash: "5 4" },
+  ];
+  const padL = 56, padR = Math.min(112, W * 0.28), padT = 14, padB = 28, iw = W - padL - padR, ih = H - padT - padB;
+  const all = series.flatMap(s => s.vals);
+  const { ticks } = niceTicks(0, Math.max(...all) * 1.05, H > 330 ? 6 : 5);
+  const y1 = Math.max(ticks.at(-1), Math.max(...all));
+  const X = i => padL + (rows.length === 1 ? iw / 2 : (i / (rows.length - 1)) * iw);
+  const Y = v => padT + (1 - v / y1) * ih;
+  for (const t of ticks) {
+    svg.append(sv("line", { x1: padL, x2: padL + iw, y1: Y(t), y2: Y(t), stroke: t === 0 ? "var(--zero)" : "var(--grid)" }));
+    const tx = sv("text", { x: padL - 8, y: Y(t) + 4, "text-anchor": "end", "font-size": 11, fill: "var(--ink-3)" });
+    tx.textContent = t === 0 ? "0" : fmtAxisKrw(t);
+    svg.append(tx);
+  }
+  const every = Math.max(1, Math.ceil(rows.length / Math.max(2, Math.floor(iw / 58))));
+  rows.forEach((r, i) => {
+    if ((i % every && i !== rows.length - 1) || (i !== rows.length - 1 && rows.length - 1 - i < every * 0.6)) return;
+    const tx = sv("text", { x: X(i), y: H - 8, "font-size": 11, fill: "var(--ink-3)",
+      "text-anchor": i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle" });
+    tx.textContent = ymShort(r.ym);
+    svg.append(tx);
+  });
+  const labs = [];
+  for (const s of series) {
+    const d = s.vals.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+    svg.append(sv("path", { d, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round",
+      ...(s.dash ? { "stroke-dasharray": s.dash } : {}) }));
+    svg.append(sv("circle", { cx: X(rows.length - 1), cy: Y(s.vals.at(-1)), r: 3.5, fill: s.color, stroke: "var(--surface)", "stroke-width": 2 }));
+    labs.push({ s, y: Y(s.vals.at(-1)) });
+  }
+  labs.sort((a, b) => a.y - b.y);
+  if (labs[1].y - labs[0].y < 32) { const mid = (labs[0].y + labs[1].y) / 2; labs[0].y = mid - 16; labs[1].y = mid + 16; }
+  for (const { s, y } of labs) {
+    const n = sv("text", { x: padL + iw + 10, y: y - 2, "font-size": 12, fill: "var(--ink-2)" }); n.textContent = s.name;
+    const v = sv("text", { x: padL + iw + 10, y: y + 13, "font-size": 13, "font-weight": 600, fill: "var(--ink)" }); v.textContent = fmtAxisKrw(s.vals.at(-1));
+    svg.append(n, v);
+  }
+  const cross = sv("line", { y1: padT, y2: padT + ih, stroke: "var(--ink-3)", "stroke-dasharray": "3 3", visibility: "hidden" });
+  const dots = sv("g");
+  svg.append(cross, dots);
+  const show = cx0 => {
+    const box = svg.getBoundingClientRect();
+    const i = Math.max(0, Math.min(rows.length - 1, Math.round(((cx0 - box.left - padL) / iw) * (rows.length - 1))));
+    const r = rows[i], cx = X(i);
+    cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.setAttribute("visibility", "visible");
+    dots.replaceChildren(...series.map(s => sv("circle", { cx, cy: Y(s.vals[i]), r: 4, fill: s.color, stroke: "var(--surface)", "stroke-width": 2 })));
+    tip.replaceChildren(el("div", { class: "t-date" }, ymLabel(r.ym)),
+      ...series.map(s => el("div", { class: "t-row" }, el("span", { class: "t-name" }, el("i", { class: "sw", style: { "--c": s.color } }), s.name),
+        el("b", { style: { fontWeight: 500 } }, fmtKrw(s.vals[i])))),
+      el("div", { class: "t-row" }, el("span", {}, "월 수익"), el("b", { class: signCls(r.profit), style: { fontWeight: 500 } }, `${pct(r.rate)}`)));
+    tip.hidden = false;
+    const tw = tip.offsetWidth;
+    tip.style.left = `${Math.max(4, cx + 14 + tw > W ? cx - 14 - tw : cx + 14) + 4}px`;
+    tip.style.top = "16px";
+  };
+  svg.addEventListener("pointermove", e => show(e.clientX));
+  svg.addEventListener("pointerdown", e => show(e.clientX));
+  svg.addEventListener("pointerleave", () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); dots.replaceChildren(); });
+}
+
+function holdingsSection() {
+  const ids = my.sel === ALL_ID ? my.accounts.map(a => a.id) : [my.sel];
+  const latestBy = {};
+  for (const h of my.holdings) if (ids.includes(h.account_id)) latestBy[h.account_id] = latestBy[h.account_id] && latestBy[h.account_id] > h.month ? latestBy[h.account_id] : h.month;
+  const list = my.holdings.filter(h => ids.includes(h.account_id) && h.month === latestBy[h.account_id]);
+  const months = [...new Set(list.map(h => h.month.slice(0, 7)))].sort();
+  const sec = el("section", { class: "mine-sec" }, el("h2", {}, "보유 종목", el("span", {}, months.length ? `${ymLabel(months.at(-1))} 말 기준` : "")));
+  if (!list.length) {
+    sec.append(el("p", { class: "empty-note" }, "한국투자증권 API 를 연결하면 매월 1일에 종목별 보유 내역이 자동으로 채워져요."));
+    return sec;
+  }
+  const accName = id => my.accounts.find(a => a.id === id)?.name || id;
+  const showAcc = my.sel === ALL_ID;
+  const thead = el("thead", {}, el("tr", {}, el("th", {}, "종목"), ...(showAcc ? [el("th", {}, "계좌")] : []),
+    el("th", {}, "수량"), el("th", {}, "평단가"), el("th", {}, "월말 가격"), el("th", {}, "평가금액"), el("th", {}, "수익률")));
+  const tbody = el("tbody", {}, ...list.map(h => {
+    const cost = +h.qty * +h.avg_price, rr = cost ? +h.eval_amount / cost - 1 : null;
+    return el("tr", {}, el("td", {}, h.name || h.symbol), ...(showAcc ? [el("td", {}, accName(h.account_id))] : []),
+      el("td", {}, (+h.qty).toLocaleString("ko-KR")), el("td", {}, fmtWon(+h.avg_price)), el("td", {}, fmtWon(+h.price)),
+      el("td", {}, fmtWon(+h.eval_amount)), el("td", { class: signCls(rr) }, pct(rr)));
+  }));
+  sec.append(el("div", { class: "tbl-wrap" }, el("table", { class: "my" }, thead, tbody)));
+  return sec;
+}
+
+function monthlySection(rows) {
+  const canEdit = my.sel !== ALL_ID;
+  const thead = el("thead", {}, el("tr", {}, ...["월", "계좌 총액", "입금액", "배당금", "월 수익", "월 수익률", "누적 입금액", "누적 수익",
+    "누적 수익률", "시간가중 수익률", ...(canEdit ? [""] : [])].map(t => el("th", {}, t))));
+  const tbody = el("tbody", {}, ...[...rows].reverse().map(r => el("tr", {},
+    el("td", {}, ymSlash(r.ym)),
+    el("td", {}, fmtWon(r.total)),
+    el("td", {}, fmtWon(r.deposit), ...(r.auto ? [el("span", { class: "tag", title: "자동으로 추정한 값이에요. 맞는지 확인해 주세요." }, "확인 필요")] : [])),
+    el("td", {}, r.dividend ? fmtWon(r.dividend) : "–"),
+    el("td", { class: signCls(r.profit) }, signedWon(r.profit)),
+    el("td", { class: signCls(r.rate) }, pct(r.rate)),
+    el("td", {}, fmtWon(r.cumDep)),
+    el("td", { class: signCls(r.cumProfit) }, signedWon(r.cumProfit)),
+    el("td", { class: signCls(r.cumRate) }, pct(r.cumRate)),
+    el("td", { class: signCls(r.twr) }, pct(r.twr)),
+    ...(canEdit ? [el("td", {}, el("button", { class: "edit", onclick: () => openEdit(r) }, "고치기"))] : []))));
+  return el("section", { class: "mine-sec" },
+    el("h2", {}, "월별 기록", el("span", {}, canEdit ? "입금액이 틀리면 고치기를 눌러 바로잡을 수 있어요" : "계좌를 고르면 고칠 수 있어요")),
+    el("div", { class: "tbl-wrap" }, el("table", { class: "my" }, thead, tbody)));
+}
+
+let editing = null;
+function openEdit(r) {
+  editing = r;
+  const acc = my.accounts.find(a => a.id === my.sel);
+  $("editDesc").textContent = `${acc?.name || ""} · ${ymLabel(r.ym)} 말`;
+  $("edTotal").value = Math.round(r.total).toLocaleString("ko-KR");
+  $("edDeposit").value = Math.round(r.deposit).toLocaleString("ko-KR");
+  $("edDividend").value = Math.round(r.dividend).toLocaleString("ko-KR");
+  $("editErr").textContent = "";
+  $("editDlg").showModal();
+}
+const parseWon = t => { const n = +String(t).replace(/[^\d.-]/g, ""); return isFinite(n) ? n : NaN; };
+$("editForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const total = parseWon($("edTotal").value), deposit = parseWon($("edDeposit").value), dividend = parseWon($("edDividend").value);
+  if ([total, deposit, dividend].some(Number.isNaN)) { $("editErr").textContent = "숫자만 입력해 주세요."; return; }
+  try {
+    await api(`/rest/v1/account_monthly?month=eq.${editing.month}&account_id=eq.${encodeURIComponent(my.sel)}`, {
+      method: "PATCH", headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ total, deposit, dividend, deposit_auto: false, source: "직접 입력", updated_at: new Date().toISOString() }) });
+    const row = my.monthly.find(m => m.month === editing.month && m.account_id === my.sel);
+    Object.assign(row, { total, deposit, dividend, deposit_auto: false, source: "직접 입력" });
+    addMineToMarket();
+    $("editDlg").close();
+    renderMine();
+  } catch (err) {
+    $("editErr").textContent = err.message === "login" ? "로그인이 풀렸어요. 다시 로그인해 주세요." : `저장하지 못했어요 (${err.message}).`;
+  }
+});
+$("editCancel").addEventListener("click", () => $("editDlg").close());
+
+$("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("loginEmail").value.trim(), password = $("loginPw").value;
+  $("loginSubmit").disabled = true; $("loginErr").textContent = "";
+  try {
+    await authRequest("password", { email, password });
+    store.set("lastEmail", email);
+    my.loaded = false;
+    $("loginDlg").close();
+    await openMine();
+  } catch (err) {
+    $("loginErr").textContent = err.message;
+  } finally { $("loginSubmit").disabled = false; }
+});
+$("loginCancel").addEventListener("click", () => $("loginDlg").close());
+$("mineBtn").addEventListener("click", () => $("mine").hidden ? openMine() : showView("market"));
+$("logoutBtn").addEventListener("click", async () => {
+  try { await api("/auth/v1/logout", { method: "POST" }); } catch {}
+  session.set(null);
+  Object.assign(my, { accounts: [], monthly: [], holdings: [], loaded: false });
+  addMineToMarket();
+  state.sel = state.sel.filter(s => !s.code.startsWith("MY_"));
+  store.set("sel", state.sel);
+  showView("market");
+});
+
 $("quick").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setQuick(b.dataset.m); });
 $("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { state.mode = b.dataset.mode; store.set("mode", state.mode); render(false); } });
 $("clearBtn").addEventListener("click", () => { state.sel = []; store.set("sel", []); render(false); });
 const svgEl = $("chart");
 svgEl.addEventListener("pointermove", e => showTip(e.clientX));
 svgEl.addEventListener("pointerdown", e => showTip(e.clientX));
-svgEl.addEventListener("pointerleave", hideTip);
-let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => state.months.length && render(false), 120); });
+svgEl.addEventListener("pointerleave", () => hideTip());
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
+  if (!$("mine").hidden) renderMine(); else if (state.months.length) render(false); }, 120); });
 
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 start();

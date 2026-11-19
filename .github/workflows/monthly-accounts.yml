@@ -1,0 +1,41 @@
+name: 내 계좌 잔고 저장
+
+on:
+  schedule:
+    # 매월 1일 한국 시간 07:05, 08:05 (장 시작 전 = 월말 가격). 말일 밤 UTC 에 돌고, 1일이 아니면 스크립트가 그냥 끝나요.
+    - cron: "5 22 28-31 * *"
+    - cron: "5 23 28-31 * *"
+  workflow_dispatch:
+    inputs:
+      month:
+        description: "저장할 달 (예: 2026-11). 비우면 지난달"
+        required: false
+      force:
+        description: "1일 장 시작 전이 아니어도 저장 (장중이면 월말 값과 달라요)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 한국투자증권 잔고 → Supabase (로그에는 금액이 나오지 않아요)
+        env:
+          KIS_ACCOUNTS: ${{ secrets.KIS_ACCOUNTS }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          IN_MONTH: ${{ inputs.month }}
+          IN_FORCE: ${{ inputs.force }}
+        run: |
+          ARGS="--save"
+          [ -n "$IN_MONTH" ] && ARGS="$ARGS --month $IN_MONTH"
+          [ "$IN_FORCE" = "true" ] && ARGS="$ARGS --force"
+          python fetcher/kis_accounts.py $ARGS
